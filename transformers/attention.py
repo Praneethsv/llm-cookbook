@@ -2,6 +2,7 @@ from tokenizer import Tokenizer
 from torch.nn.functional import softmax
 from torch.nn import Module
 from torch import nn
+import torch
 
 
 class Attention(Module):
@@ -11,9 +12,12 @@ class Attention(Module):
     def __init__(self, tokenizer: Tokenizer, context_length: int) -> None:
         super.__init__()
         self.tokenizer = tokenizer()
-        self.W_q = nn.init.xavier_uniform_()
-        self.W_k = nn.init.xavier_uniform_()
         self.d = context_length
+        self.W_q = nn.Parameter(torch.empty(self.d, self.d))
+        self.W_k = nn.Parameter(torch.empty(self.d, self.d))
+        nn.init.xavier_uniform_(self.W_q)
+        nn.init.xavier_uniform_(self.W_k)
+        
 
     def forward(self):
         # Step1: Tokenize and get embeddings
