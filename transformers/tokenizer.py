@@ -1,6 +1,7 @@
 from typing import List
 from gensim.models import Word2Vec
 import numpy as np
+import torch
 
 from transformers import AutoTokenizer, BertModel
 
@@ -25,6 +26,6 @@ class Tokenizer:
             self.tokens = self.tokenize()
         words_to_vec = Word2Vec([self.tokens], vector_size=embedding_size, window=window, min_count=count)
         embeddings = words_to_vec.wv.vectors
+        embeddings = torch.tensor(embeddings)
         return embeddings
-    
     

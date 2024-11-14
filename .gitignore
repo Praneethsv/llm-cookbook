@@ -1,0 +1,54 @@
+transformers/__pycache__/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+*.egg-info/
+*.egg/
+dist/
+build/
+
+# PyInstaller
+#  Usually these files are written by a python script and it is
+#  not good to version control generated files.
+distinfo*
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.tox/
+.coverage
+.coverage.*
+.htmlcov/
+nosetests.xml
+test-results.xml
+
+# IDE directories
+.vscode/
+.idea/
+*.iml
+
+# PyCharm
+.idea/
+*.iml
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Sphinx documentation
+docs/_build/
+
+# Environments
+env/
+venv/
+virtualenv/
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
