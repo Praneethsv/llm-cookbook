@@ -28,7 +28,7 @@ class Attention(Module):
         # Step3: Compute Attention Matrix A using Softmax((Q * k / sqrt(d)))
         embeddings = self.tokenizer.embeddings(self.embedding_size, self.window, self.min_count)
         print(embeddings.shape, self.W_q.shape)
-        Q = torch.matmul(embeddings, self.W_q) 
+        Q = torch.matmul(embeddings, self.W_q)
         K = torch.matmul(embeddings, self.W_k)
         A = softmax((Q * K) / self.d ** 0.5)
         return A
