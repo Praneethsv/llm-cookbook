@@ -10,9 +10,7 @@ class CNNBlock(nn.Module):
         layers = [
             nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=stride, padding=padding), 
             nn.ReLU(), 
-            self.pooling_layer,
-            nn.BatchNorm2d()
-
+            self.pooling_layer
         ]
         if batch_norm:
             layers.append(nn.BatchNorm2d(out_channels))
