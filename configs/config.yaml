@@ -1,0 +1,33 @@
+
+train:
+
+  epochs: 100
+
+  batch_size: 8
+
+  device: 'cuda:0'
+
+  optimizer:
+    Adam: True
+    SGD: False
+
+  learning_rate:
+    lr: 0.001
+    decaying: True
+
+  task:
+    classification:
+      Image: True
+        model: 'CNN'
+
+      Text: False
+        model: 'Transformer'
+
+    object_detection:
+      model: 'YOLO'
+
+    image_segmentation:
+
+test:
+
+  batch_size: 8
