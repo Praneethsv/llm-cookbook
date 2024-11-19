@@ -1,6 +1,6 @@
-
 train:
 
+  data_path: "/home/sv/Documents/"
   epochs: 100
 
   batch_size: 8
@@ -15,19 +15,24 @@ train:
     lr: 0.001
     decaying: True
 
+  model_save_path: "/home/sv/Documents/models"
   task:
     classification:
-      Image: True
+      
+      Image:
+        enabled: True
         model: 'CNN'
-
-      Text: False
+        
+      Text:
+        enabled: False
         model: 'Transformer'
 
     object_detection:
       model: 'YOLO'
 
     image_segmentation:
+      model: ''
+
 
 test:
-
   batch_size: 8
