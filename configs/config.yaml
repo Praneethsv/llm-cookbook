@@ -15,7 +15,9 @@ train:
     lr: 0.001
     decaying: True
 
-  model_save_path: "/home/sv/Documents/models"
+  model_saver: 
+    path: "/home/sv/Documents/models"
+    name: 'cifar-10'
   task:
     classification:
       

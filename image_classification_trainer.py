@@ -1,5 +1,6 @@
 from base_trainer import BaseTrainer
 from cfg_loader import ConfigLoader
+import torch
 
 
 class ImageClassificationTrainer(BaseTrainer):
@@ -19,7 +20,13 @@ class ImageClassificationTrainer(BaseTrainer):
         return super().load_data()
 
     def train(self):
-        print(self.cfg)
+        epochs = self.cfg.train.epochs
+        running_loss = 0.0
+        for i in range(epochs):
+            self.train_one_step()
+
+    def train_one_step():
+        pass
 
     def build_model(self):
         return super().build_model()
@@ -27,8 +34,15 @@ class ImageClassificationTrainer(BaseTrainer):
     def load_model(self, path: str):
         return super().load_model(path)
     
-    def save_model(self, path: str):
-        return super().save_model(path)
+    def save_model(self):
+        model_saver_cfg = self.cfg.train.model_saver
+        save_path = model_saver_cfg.path + model_saver_cfg.name
+        torch.save(save_path)
+
+    def setup_logger(self):
+
+        return super().setup_logger()
+        
     
 
 

@@ -1,5 +1,5 @@
 from attention import Attention
-from feedforward import Feedforward
+from mlp.feedforward import Feedforward
 import torch
 import torch.nn as nn
 

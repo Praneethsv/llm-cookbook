@@ -22,11 +22,32 @@ class BaseTrainer(ABC):
         pass
 
     @abstractmethod
-    def save_model(self, path: str):
-        """ Saves the trained model to a specific path """
+    def save_model(self):
+        """ Saves the trained model to a specific path. Model save path is taken from config.yaml """
         pass
 
     @abstractmethod
-    def load_model(self, path: str):
-        """ Loads the trained model given a specific path """
+    def load_model(self):
+        """ Loads the trained model given a specific path. Load path is taken from config.yaml """
         pass
+
+    @abstractmethod
+    def train_one_step():
+        """Perform a single training step on a batch of data."""
+        pass
+
+    @abstractmethod
+    def validate_one_step():
+        """Perform a single validation step on a batch of data."""
+        pass
+
+    @abstractmethod
+    def evaluate(self, data_loader):
+        """Evaluate the model on the given dataset."""
+        pass
+   
+    @abstractmethod
+    def setup_logger(self):
+        """Set up the logger for training."""
+        pass
+

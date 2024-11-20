@@ -15,21 +15,21 @@ class CNNBlock(nn.Module):
         if batch_norm:
             layers.append(nn.BatchNorm2d(out_channels))
         
-        self.cnn = nn.Sequential(*layers)
+        self.cnn_block = nn.Sequential(*layers)
 
 
     def forward(self, x):
-        return self.cnn(x)
+        return self.cnn_block(x)
     
 
 class CNN(nn.Module):
-    def __init__(self, in_channels, hidden_channel_dims: List = [512, 512], hidden_kernel_dims: List = [3, 3]) -> None:
+    def __init__(self, in_channels, conv_channel_dims: List = [512, 512], conv_kernel_dims: List = [3, 3]) -> None:
         super(CNN, self).__init__()
         self.blocks = nn.ModuleList()
         current_channel_dim = in_channels
-        for hidden_channel_dim, hidden_kernel in zip(hidden_channel_dims, hidden_kernel_dims):
-            self.blocks.append(CNNBlock(current_channel_dim,  hidden_channel_dim, hidden_kernel))
-            current_channel_dim = hidden_channel_dim
+        for conv_channel_dim, conv_kernel in zip(conv_channel_dims, conv_kernel_dims):
+            self.blocks.append(CNNBlock(current_channel_dim,  conv_channel_dim, conv_kernel))
+            current_channel_dim = conv_channel_dim
         
     def forward(self, x):
         for block in self.blocks:
