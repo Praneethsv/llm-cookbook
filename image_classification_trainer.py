@@ -1,6 +1,9 @@
 from base_trainer import BaseTrainer
 from cfg_loader import ConfigLoader
 import torch
+import mlflow
+from typing import Dict
+from torch.utils.data import DataLoader
 
 
 class ImageClassificationTrainer(BaseTrainer):
@@ -28,6 +31,12 @@ class ImageClassificationTrainer(BaseTrainer):
     def train_one_step():
         pass
 
+    def metrics(self) -> Dict:
+        return {"Accuracy: ": 0.0,
+                "Precision: ": 0.0,
+                "Recall: ": 0.0,
+                "F1-score: ": 0.0}
+
     def build_model(self):
         return super().build_model()
     
@@ -40,8 +49,8 @@ class ImageClassificationTrainer(BaseTrainer):
         torch.save(save_path)
 
     def setup_logger(self):
-
-        return super().setup_logger()
+        with mlflow.start_run():
+            mlflow.log_dict(self.metrics)
         
     
 

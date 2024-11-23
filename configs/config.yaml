@@ -1,9 +1,20 @@
 train:
 
-  data_path: "/home/sv/Documents/"
-  epochs: 100
+  data_loader:
+    batch_size: 8
+    image:
+      enabled: True
+      data_path: "/home/sv/Downloads/tiny_imagenet/val/images"
+      annotation_file: "/home/sv/Downloads/tiny_imagenet/val/val_annotations.txt"
+      annotation_map_file: "/home/sv/Downloads/archive/tiny-imagenet-200/words.txt"
+      train_split: 0.7
+      val_split: 0.2
+      test_split: 0.1
+    text:
+      enabled: False
+      data_path: ''
 
-  batch_size: 8
+  epochs: 100
 
   device: 'cuda:0'
 
@@ -38,3 +49,6 @@ train:
 
 test:
   batch_size: 8
+  data_loader:
+
+  
