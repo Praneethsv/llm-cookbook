@@ -1,10 +1,15 @@
-from base_data_loader import BaseDataLoader
-import polars as pl
 import os
-from cfg_loader import ConfigLoader
-from PIL import Image
-from torchvision.transforms.functional import pil_to_tensor
+from collections import defaultdict
+
+import kornia as K
+import kornia.geometry.transform as Trans
+import polars as pl
 import torch
+from base_data_loader import BaseDataLoader
+from PIL import Image
+from torchvision.transforms.functional import pil_to_tensor, to_pil_image
+
+from cfg_loader import ConfigLoader
 
 
 class ImageNetDataLoader(BaseDataLoader):
@@ -19,27 +24,39 @@ class ImageNetDataLoader(BaseDataLoader):
 
     def load_meta_data(self):
         """Loads Image meta data into a Data Frame
-           Columns: S.no, File name, path, folder_name, 
+        Columns: S.no, File name, path, folder_name,
         """
-        images = os.listdir(self.cfg.data_path)
-        self.data_df = pl.DataFrame({'image_names': images, 'path': self.cfg.data_path})
+        map_dict = self.get_labels()
+        with open(self.cfg.annotation_file) as f:
+            images = []
+            bboxes = []
+            annotations = []
+            for line in f:
+                labels = [0] * 200
+                image_names, class_label, *bbox = line.strip().split("\t")
+                labels[map_dict[class_label]] = 1
+                images.append(image_names)
+                annotations.append(labels)
+                bboxes.append(bbox)
+
+        self.data_df = pl.DataFrame(
+            {
+                "image_names": images,
+                "path": self.cfg.data_path,
+                "labels": annotations,
+                "bboxes": bboxes,
+            }
+        )
 
     def load_data(self, raw_input_path):
-        " Loads Images using PIL and returns a tensor "
+        "Loads Images using PIL and returns a tensor"
         image = Image.open(raw_input_path)
         image_tensor = pil_to_tensor(image)
+        if self.cfg.preprocess:
+            image_tensor = self.preprocess(image_tensor)
+
         return image_tensor
-    
-    def one_hot_encoding(self, map_file):
-        map_dict = {}
-        with open(map_file) as f:
-            for line in f:
-                _, label_id, label_names = line.strip().split()
-                map_dict[label_id] = label_names
-        num_labels = list(map_dict.keys())
-        one_hot_vectors = [0] * len(num_labels)
-        return 
-    
+
     def split(self):
         if self.data_df is None:
             self.load_meta_data()
@@ -48,48 +65,48 @@ class ImageNetDataLoader(BaseDataLoader):
         train_end = int(num_samples * self.cfg.train_split)
         val_end = int(num_samples * self.cfg.val_split)
         train_df = shuffled_data_df[:train_end]
-        val_df = shuffled_data_df[train_end: val_end]
+        val_df = shuffled_data_df[train_end:val_end]
         test_df = shuffled_data_df[val_end:]
 
         return [train_df, val_df, test_df]
-    
-    def preprocess(self):
-        return super().preprocess()
-    
+
+    def preprocess(self, image_tensor: torch.Tensor):
+        # image_tensor = image_tensor.unsqueeze(0)
+        # print(image_tensor.shape)
+        # angle_radians = torch.tensor([45.0]) * torch.pi / 180
+        # center = torch.tensor([[32, 32]], dtype=torch.float32)
+        # image_tensor = Trans.rotate(image_tensor, angle=angle_radians, center=center)
+        # pil_image = to_pil_image(image_tensor)
+        # pil_image.show()
+        return image_tensor
+
     def get_batch(self, in_df: pl.DataFrame, batch_idx):
-        " Takes a Data Frame, loads image data using PIL, and return tensor with batch_size images"
-        # cur_idx = batch_idx
+        "Takes a Data Frame, loads image data using PIL, and return tensor with batch_size images"
         batch_df = in_df[:batch_idx]
         images = []
         labels = []
         for image_name, path, label, _ in batch_df.iter_rows():
-            image = self.load_data(path + '/' + image_name)
+            image = self.load_data(path + "/" + image_name)
             images.append(image)
-            labels.append(label)
+            labels.append(torch.tensor(label))
         batch_images_tensor = torch.stack(images)
-        labels_tensor = torch.stack(labels)
-        return batch_images_tensor, labels_tensor
-    
-    def get_labels(self, in_df: pl.DataFrame):
-        
-        label_rows = []
-        with open(self.cfg.annotation_file) as f:
-            for line in f:
-                image_names, class_label, *bbox = line.strip().split()
-                label_rows.append({'image_names': image_names, 'label': class_label, 'bbox': bbox})
-        
-        label_data_df = pl.DataFrame(label_rows)
-        merged_df = in_df.join(label_data_df, on='image_names', how='left')
-        return merged_df
-    
+        batch_labels_tensor = torch.stack(labels)
+        return batch_images_tensor, batch_labels_tensor
+
+    def get_labels(self):
+        map_dict = {}
+        with open(self.cfg.annotation_map_file) as meta_file:
+            data = meta_file.readlines()
+            for i, line in enumerate(data):
+                map_dict[line.strip()] = i
+        return map_dict
+
 
 if __name__ == "__main__":
     cfg_ldr = ConfigLoader("configs", "config")
     cfg = cfg_ldr.load()
     image_net_data_loader = ImageNetDataLoader(cfg.train.data_loader)
     train_data, val_data, test_data = image_net_data_loader.split()
-    res = image_net_data_loader.get_labels(test_data)
-    print(res)
-    image_tensor, label_tensor = image_net_data_loader.get_batch(res, 2)
-    print(image_tensor)
-    print(label_tensor)
+    image_tensor, label_tensor = image_net_data_loader.get_batch(train_data, 2)
+    print(image_tensor.shape)
+    print(label_tensor.shape)
