@@ -52,6 +52,8 @@ virtualenv/
 # Miscellaneous
 .DS_Store
 Thumbs.db
+*.pdf
+*.png
 
 # Experiment logging
 mlruns

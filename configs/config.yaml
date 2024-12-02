@@ -6,7 +6,8 @@ train:
       enabled: True
       data_path: "/home/sv/Downloads/tiny_imagenet/val/images"
       annotation_file: "/home/sv/Downloads/tiny_imagenet/val/val_annotations.txt"
-      annotation_map_file: "/home/sv/Downloads/archive/tiny-imagenet-200/words.txt"
+      annotation_map_file: "/home/sv/Downloads/archive/tiny-imagenet-200/wnids.txt"
+      preprocess: True
       train_split: 0.7
       val_split: 0.2
       test_split: 0.1
