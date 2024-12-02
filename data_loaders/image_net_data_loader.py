@@ -1,8 +1,4 @@
-import os
-from collections import defaultdict
-
-import kornia as K
-import kornia.geometry.transform as Trans
+import kornia.augmentation as K
 import polars as pl
 import torch
 from base_data_loader import BaseDataLoader
@@ -51,10 +47,7 @@ class ImageNetDataLoader(BaseDataLoader):
     def load_data(self, raw_input_path):
         "Loads Images using PIL and returns a tensor"
         image = Image.open(raw_input_path)
-        image_tensor = pil_to_tensor(image)
-        if self.cfg.preprocess:
-            image_tensor = self.preprocess(image_tensor)
-
+        image_tensor = pil_to_tensor(image).float() / 255.0
         return image_tensor
 
     def split(self):
@@ -70,15 +63,13 @@ class ImageNetDataLoader(BaseDataLoader):
 
         return [train_df, val_df, test_df]
 
-    def preprocess(self, image_tensor: torch.Tensor):
-        # image_tensor = image_tensor.unsqueeze(0)
-        # print(image_tensor.shape)
-        # angle_radians = torch.tensor([45.0]) * torch.pi / 180
-        # center = torch.tensor([[32, 32]], dtype=torch.float32)
-        # image_tensor = Trans.rotate(image_tensor, angle=angle_radians, center=center)
-        # pil_image = to_pil_image(image_tensor)
-        # pil_image.show()
-        return image_tensor
+    def preprocess(self, image_batch: torch.Tensor):
+        aug = K.AugmentationSequential(
+            K.ColorJiggle(0.1, 0.1, 0.1, 0.1, p=1.0),
+            K.RandomAffine(360, [0.1, 0.1], [0.7, 1.2], [30.0, 50.0], p=1.0),
+        )
+        out_tensors = aug(image_batch)
+        return out_tensors
 
     def get_batch(self, in_df: pl.DataFrame, batch_idx):
         "Takes a Data Frame, loads image data using PIL, and return tensor with batch_size images"
@@ -89,7 +80,11 @@ class ImageNetDataLoader(BaseDataLoader):
             image = self.load_data(path + "/" + image_name)
             images.append(image)
             labels.append(torch.tensor(label))
-        batch_images_tensor = torch.stack(images)
+        batch_images_tensor = (
+            self.preprocess(torch.stack(images))
+            if self.cfg.preprocess
+            else torch.stack(images)
+        )
         batch_labels_tensor = torch.stack(labels)
         return batch_images_tensor, batch_labels_tensor
 
@@ -108,5 +103,3 @@ if __name__ == "__main__":
     image_net_data_loader = ImageNetDataLoader(cfg.train.data_loader)
     train_data, val_data, test_data = image_net_data_loader.split()
     image_tensor, label_tensor = image_net_data_loader.get_batch(train_data, 2)
-    print(image_tensor.shape)
-    print(label_tensor.shape)
