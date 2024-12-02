@@ -95,11 +95,3 @@ class ImageNetDataLoader(BaseDataLoader):
             for i, line in enumerate(data):
                 map_dict[line.strip()] = i
         return map_dict
-
-
-if __name__ == "__main__":
-    cfg_ldr = ConfigLoader("configs", "config")
-    cfg = cfg_ldr.load()
-    image_net_data_loader = ImageNetDataLoader(cfg.train.data_loader)
-    train_data, val_data, test_data = image_net_data_loader.split()
-    image_tensor, label_tensor = image_net_data_loader.get_batch(train_data, 2)
