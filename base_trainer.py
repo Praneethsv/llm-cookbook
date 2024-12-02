@@ -8,11 +8,6 @@ class BaseTrainer(ABC):
         pass
 
     @abstractmethod
-    def load_data(self):
-        """Load datasets for training, validation, and testing."""
-        pass
-
-    @abstractmethod
     def build_model(self):
         """Build or initialize the model."""
         pass
@@ -23,12 +18,12 @@ class BaseTrainer(ABC):
 
     @abstractmethod
     def save_model(self):
-        """ Saves the trained model to a specific path. Model save path is taken from config.yaml """
+        """Saves the trained model to a specific path. Model save path is taken from config.yaml"""
         pass
 
     @abstractmethod
     def load_model(self):
-        """ Loads the trained model given a specific path. Load path is taken from config.yaml """
+        """Loads the trained model given a specific path. Load path is taken from config.yaml"""
         pass
 
     @abstractmethod
@@ -45,9 +40,8 @@ class BaseTrainer(ABC):
     def evaluate(self, data_loader):
         """Evaluate the model on the given dataset."""
         pass
-   
+
     @abstractmethod
     def setup_logger(self):
         """Set up the logger for training."""
         pass
-

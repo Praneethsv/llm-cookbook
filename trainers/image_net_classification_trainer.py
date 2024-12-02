@@ -1,26 +1,24 @@
+from typing import Dict
+
+import mlflow
+import torch
+
 from base_trainer import BaseTrainer
 from cfg_loader import ConfigLoader
-import torch
-import mlflow
-from typing import Dict
-from torch.utils.data import DataLoader
+from data_loaders.image_net_data_loader import ImageNetDataLoader
 
 
 class ImageClassificationTrainer(BaseTrainer):
     def __init__(self, config_path, config_name) -> None:
         super().__init__()
-        self.cfg = None
-        self.cfg_path, self.cfg_name = config_path, config_name
 
-    
+        self.cfg_path, self.cfg_name = config_path, config_name
+        self.cfg = self.load_cfg()
+        image_net_data_loader = ImageNetDataLoader(self.cfg.train.data_loader)
+        self.train_data, self.val_data, self.test_data = image_net_data_loader.split()
+
     def load_cfg(self):
         self.cfg = ConfigLoader(self.cfg_path, self.cfg_name).load()
-    
-    def load_data(self):
-        print(self.cfg)
-        dataset_path = self.cfg.train.data_path
-        print(dataset_path)
-        return super().load_data()
 
     def train(self):
         epochs = self.cfg.train.epochs
@@ -32,17 +30,19 @@ class ImageClassificationTrainer(BaseTrainer):
         pass
 
     def metrics(self) -> Dict:
-        return {"Accuracy: ": 0.0,
-                "Precision: ": 0.0,
-                "Recall: ": 0.0,
-                "F1-score: ": 0.0}
+        return {
+            "Accuracy: ": 0.0,
+            "Precision: ": 0.0,
+            "Recall: ": 0.0,
+            "F1-score: ": 0.0,
+        }
 
     def build_model(self):
         return super().build_model()
-    
+
     def load_model(self, path: str):
         return super().load_model(path)
-    
+
     def save_model(self):
         model_saver_cfg = self.cfg.train.model_saver
         save_path = model_saver_cfg.path + model_saver_cfg.name
@@ -51,11 +51,9 @@ class ImageClassificationTrainer(BaseTrainer):
     def setup_logger(self):
         with mlflow.start_run():
             mlflow.log_dict(self.metrics)
-        
-    
 
 
-if __name__ == '__main__':
-   image_classifier = ImageClassificationTrainer("configs", "config")
-   image_classifier.load_cfg()
-   image_classifier.load_data()
+if __name__ == "__main__":
+    image_classifier = ImageClassificationTrainer("configs", "config")
+    image_classifier.load_cfg()
+    image_classifier.load_data()
