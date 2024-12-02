@@ -3,9 +3,7 @@ import polars as pl
 import torch
 from base_data_loader import BaseDataLoader
 from PIL import Image
-from torchvision.transforms.functional import pil_to_tensor, to_pil_image
-
-from cfg_loader import ConfigLoader
+from torchvision.transforms.functional import pil_to_tensor
 
 
 class ImageNetDataLoader(BaseDataLoader):
