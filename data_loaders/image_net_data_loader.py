@@ -1,9 +1,10 @@
 import kornia.augmentation as K
 import polars as pl
 import torch
-from base_data_loader import BaseDataLoader
 from PIL import Image
 from torchvision.transforms.functional import pil_to_tensor
+
+from data_loaders.base_data_loader import BaseDataLoader
 
 
 class ImageNetDataLoader(BaseDataLoader):

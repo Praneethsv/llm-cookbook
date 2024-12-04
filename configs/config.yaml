@@ -30,22 +30,31 @@ train:
   model_saver: 
     path: "/home/sv/Documents/models"
     name: 'cifar-10'
+
   task:
     classification:
-      
+      enabled: True
       Image:
         enabled: True
-        model: 'CNN'
+        model: 
+          name: 'CNN'
+          in_channels:
+          out_channels:
         
       Text:
         enabled: False
-        model: 'Transformer'
+        model: 
+          name: 'Transformer'
 
     object_detection:
-      model: 'YOLO'
+      enabled: False
+      model: 
+        name: 'YOLO'
 
     image_segmentation:
-      model: ''
+      enabled: False
+      model: 
+        name: ''
 
 
 test:

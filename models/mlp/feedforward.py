@@ -1,21 +1,12 @@
-import torch
-import torch.nn as nn
 from typing import List
 
+import torch.nn as nn
 
-
-class FeedForwardBlock(nn.Module):
-    def __init__(self, in_dim, out_dim):
-        super(FeedForwardBlock, self).__init__()
-        self.layer = nn.Sequential(nn.Linear(in_dim, out_dim), nn.ReLU()) 
-
-    def forward(self, x):
-        return self.layer(x)
-
+from models.mlp.feedforward_block import FeedForwardBlock
 
 
 class FeedForward(nn.Module):
-    def __init__(self, in_dim=512, hidden_dims: List = [512, 256], out_dim=128)-> None:
+    def __init__(self, in_dim=512, hidden_dims: List = [512, 256], out_dim=128) -> None:
         super(FeedForward, self).__init__()
         self.blocks = nn.ModuleList()
         current_dim = in_dim

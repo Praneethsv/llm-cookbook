@@ -2,6 +2,7 @@ from typing import Dict
 
 import mlflow
 import torch
+from model_zoo import ModelZoo
 
 from base_trainer import BaseTrainer
 from cfg_loader import ConfigLoader
@@ -16,9 +17,13 @@ class ImageClassificationTrainer(BaseTrainer):
         self.cfg = self.load_cfg()
         image_net_data_loader = ImageNetDataLoader(self.cfg.train.data_loader)
         self.train_data, self.val_data, self.test_data = image_net_data_loader.split()
+        self.model = None
+        self.model_zoo = ModelZoo(self.cfg.train.task)
+        self.build_model(self.cfg)
 
     def load_cfg(self):
         self.cfg = ConfigLoader(self.cfg_path, self.cfg_name).load()
+        return self.cfg
 
     def train(self):
         epochs = self.cfg.train.epochs
@@ -37,8 +42,11 @@ class ImageClassificationTrainer(BaseTrainer):
             "F1-score: ": 0.0,
         }
 
-    def build_model(self):
-        return super().build_model()
+    def build_model(self, task_cfg):
+        models = self.model_zoo.get_models(task_cfg)
+        for model in models:
+            print(model)
+        return models
 
     def load_model(self, path: str):
         return super().load_model(path)
@@ -48,6 +56,12 @@ class ImageClassificationTrainer(BaseTrainer):
         save_path = model_saver_cfg.path + model_saver_cfg.name
         torch.save(save_path)
 
+    def validate_one_step():
+        pass
+
+    def evaluate(self, data_loader):
+        return super().evaluate(data_loader)
+
     def setup_logger(self):
         with mlflow.start_run():
             mlflow.log_dict(self.metrics)
@@ -56,4 +70,3 @@ class ImageClassificationTrainer(BaseTrainer):
 if __name__ == "__main__":
     image_classifier = ImageClassificationTrainer("configs", "config")
     image_classifier.load_cfg()
-    image_classifier.load_data()
