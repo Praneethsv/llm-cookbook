@@ -17,9 +17,8 @@ class ImageClassificationTrainer(BaseTrainer):
         self.cfg = self.load_cfg()
         image_net_data_loader = ImageNetDataLoader(self.cfg.train.data_loader)
         self.train_data, self.val_data, self.test_data = image_net_data_loader.split()
-        self.model = None
         self.model_zoo = ModelZoo(self.cfg.train.task)
-        self.build_model(self.cfg)
+        self.model = self.build_model(self.cfg)[0]
 
     def load_cfg(self):
         self.cfg = ConfigLoader(self.cfg_path, self.cfg_name).load()
@@ -31,8 +30,8 @@ class ImageClassificationTrainer(BaseTrainer):
         for i in range(epochs):
             self.train_one_step()
 
-    def train_one_step():
-        pass
+    def train_one_step(self):
+        self.model.train()  # to set the model mode to train
 
     def metrics(self) -> Dict:
         return {
@@ -43,9 +42,10 @@ class ImageClassificationTrainer(BaseTrainer):
         }
 
     def build_model(self, task_cfg):
-        models = self.model_zoo.get_models(task_cfg)
-        for model in models:
-            print(model)
+        models_dict = self.model_zoo.get_models(task_cfg)
+        models = []
+        for model_instance, model_cfg in models_dict.items():
+            models.append(model_instance(**model_cfg))
         return models
 
     def load_model(self, path: str):
@@ -70,3 +70,4 @@ class ImageClassificationTrainer(BaseTrainer):
 if __name__ == "__main__":
     image_classifier = ImageClassificationTrainer("configs", "config")
     image_classifier.load_cfg()
+    image_classifier.train()

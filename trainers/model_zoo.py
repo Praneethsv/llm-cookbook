@@ -22,23 +22,32 @@ class ModelZoo:
         """Depending on the task, retrieves the class for building a model"""
         if models is None:
             self.models = []
+            self.model_cfgs = []
         if OmegaConf.is_dict(cfg):
             if cfg.get("enabled", False):
                 model = cfg.get("model", "")
                 if model:
                     self.models.append(model.name)
+                    self.model_cfgs.append(model)
 
             for key, value in cfg.items():
                 if OmegaConf.is_dict(value):
                     self.get_models(
                         value, f"{path}.{key}" if path else key, self.models
                     )
-        model_classes = []
-        for model_name, module_classes in self.model_classes.items():
-            for module_class in module_classes:
-                if module_class.__name__ in self.models:
-                    model_classes.append(module_class)
+        model_classes = {}
+        for model_name, model_cfg in zip(self.models, self.model_cfgs):
+            model = self.get_class_by_name(model_name)  # should get a class
+            if model not in model_classes.keys():
+                model_classes[model] = model_cfg
         return model_classes
+
+    def get_class_by_name(self, name):
+        for key, classes in self.model_classes.items():
+            for cls in classes:
+                if name.lower() in cls.__name__.lower():  # case-insensitive matching
+                    return cls
+        return None
 
     def register_models(self, pkg_name):
         pkg_classes = defaultdict(list)

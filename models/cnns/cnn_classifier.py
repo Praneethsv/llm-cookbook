@@ -10,13 +10,15 @@ from models.mlp.classification_block import ClassificationBlock
 class CNNClassifier(nn.Module):
     def __init__(
         self,
+        name,
         in_channels,
         conv_channel_dims: List = ...,
         conv_kernel_dims: List = ...,
         out_dim=10,
-        input_size=(32, 32),
+        input_size=[32, 32],
     ) -> None:
         super(CNNClassifier, self).__init__()
+        self.name = name
         self.cnn = CNN(in_channels, conv_channel_dims, conv_kernel_dims)
         self.flattened_dim = self._compute_flattened_dim(input_size, in_channels)
         self.out_layer = ClassificationBlock(in_dim=self.flattened_dim, out_dim=out_dim)
