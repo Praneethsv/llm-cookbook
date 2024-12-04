@@ -14,12 +14,12 @@ class CNN(nn.Module):
     ) -> None:
         super(CNN, self).__init__()
         self.blocks = nn.ModuleList()
-        current_channel_dim = in_channels
+        self.current_channel_dim = in_channels
         for conv_channel_dim, conv_kernel in zip(conv_channel_dims, conv_kernel_dims):
             self.blocks.append(
-                CNNBlock(current_channel_dim, conv_channel_dim, conv_kernel)
+                CNNBlock(self.current_channel_dim, conv_channel_dim, conv_kernel)
             )
-            current_channel_dim = conv_channel_dim
+            self.current_channel_dim = conv_channel_dim
 
     def forward(self, x):
         for block in self.blocks:
