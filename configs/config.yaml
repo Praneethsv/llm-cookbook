@@ -1,7 +1,7 @@
 train:
 
   data_loader:
-    batch_size: 8
+    batch_size: 64
     image:
       enabled: True
       data_path: "/home/sv/Downloads/tiny_imagenet/val/images"
@@ -15,13 +15,27 @@ train:
       enabled: False
       data_path: ''
 
-  epochs: 100
+  epochs: 1
 
   device: 'cuda:0'
 
   optimizer:
-    Adam: True
-    SGD: False
+    Adam: 
+      enabled: True
+      lr: 3e-4
+      weight_decay: 0.01
+      betas: [0.9, 0.999]
+      eps: 1e-08
+      amsgrad: False
+    
+    AdamW: 
+      enabled: False
+      lr: 3e-4
+
+    SGD:
+      enabled: False
+      lr: 0.001
+
 
   learning_rate:
     lr: 0.001
@@ -36,15 +50,26 @@ train:
       enabled: True
       Image:
         enabled: True
-        model: 
+        model:
           name: 'CNNClassifier'
+          input_size: [32, 32]
           in_channels: 3
-          out_channels: 128
+          conv_channel_dims: [512, 512]
+          conv_kernel_dims: [3, 3]
+          out_dim: 200
+        loss:
+          name: 'CrossEntropyLoss' # if any parameters for loss, add args here.
+          label_smoothing: 0.1
         
       Text:
         enabled: False
         model: 
           name: 'Transformer'
+          input_size:
+          context_length:
+          num_heads:
+        loss:
+          name: 'HingeEmbeddingLoss'
 
     object_detection:
       enabled: False

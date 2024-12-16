@@ -1,3 +1,4 @@
+import inspect
 from typing import Any
 
 import torch.optim as optim
@@ -22,7 +23,11 @@ class Optimizer:
         for optimizer_name, config in cfg.items():
 
             if OmegaConf.is_dict(config) and config.get("enabled", False):
+                valid_params = inspect.signature(
+                    self.optim_dict.get(optimizer_name, None)
+                ).parameters
+                optim_cfg = {k: v for k, v in config.items() if k in valid_params}
 
-                return {self.optim_dict.get(optimizer_name, None): config}
+                return {self.optim_dict.get(optimizer_name, None): optim_cfg}
 
         return {optim.Adam: {"lr": 3e-4}}
