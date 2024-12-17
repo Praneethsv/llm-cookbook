@@ -68,6 +68,11 @@ class ImageNetDataLoader(BaseDataLoader):
         aug = K.AugmentationSequential(
             K.ColorJiggle(0.1, 0.1, 0.1, 0.1, p=1.0),
             K.RandomAffine(360, [0.1, 0.1], [0.7, 1.2], [30.0, 50.0], p=1.0),
+            K.Normalize(
+                mean=torch.tensor([0.485, 0.456, 0.406]),
+                std=torch.tensor([0.229, 0.224, 0.225]),
+                p=1.0,
+            ),
         )
         out_tensors = aug(image_batch)
         return out_tensors.to(self.device)

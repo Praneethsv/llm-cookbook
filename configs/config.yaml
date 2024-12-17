@@ -1,7 +1,7 @@
 train:
 
   data_loader:
-    batch_size: 256
+    batch_size: 128
     image:
       enabled: True
       data_path: "/home/sv/Downloads/tiny_imagenet/val/images"
@@ -54,8 +54,8 @@ train:
           name: 'CNNClassifier'
           input_size: [64, 64]
           in_channels: 3
-          conv_channel_dims: [128, 256]
-          conv_kernel_dims: [3, 3]
+          conv_channel_dims: [128, 256, 512]
+          conv_kernel_dims: [3, 3, 3]
           out_dim: 200
         loss:
           name: 'CrossEntropyLoss' # if any parameters for loss, add args here.
