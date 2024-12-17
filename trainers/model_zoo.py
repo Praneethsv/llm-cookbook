@@ -2,18 +2,17 @@ import importlib
 import inspect
 import pkgutil
 from collections import defaultdict
-from dataclasses import dataclass
 
 from omegaconf import OmegaConf
 
 import models
-from cfg_loader import ConfigLoader
 
 
 class ModelZoo:
 
-    def __init__(self, task_cfg) -> None:
-        self.task_cfg = task_cfg
+    def __init__(self, cfg) -> None:
+        self.batch_size = cfg.train.data_loader.batch_size
+        self.task_cfg = cfg.train.task
         self.model_classes = self.register_models("models")
         self.tasks = None
         self.models = None
@@ -37,7 +36,7 @@ class ModelZoo:
                     )
         model_classes = {}
         for model_name, model_cfg in zip(self.models, self.model_cfgs):
-            model = self.get_class_by_name(model_name)  # should get a class
+            model = self.get_class_by_name(model_name)
             if model not in model_classes.keys():
                 model_classes[model] = model_cfg
         return model_classes

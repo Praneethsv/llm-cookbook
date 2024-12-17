@@ -1,7 +1,7 @@
 train:
 
   data_loader:
-    batch_size: 64
+    batch_size: 2
     image:
       enabled: True
       data_path: "/home/sv/Downloads/tiny_imagenet/val/images"
@@ -52,9 +52,9 @@ train:
         enabled: True
         model:
           name: 'CNNClassifier'
-          input_size: [32, 32]
+          input_size: [64, 64]
           in_channels: 3
-          conv_channel_dims: [512, 512]
+          conv_channel_dims: [16, 32]
           conv_kernel_dims: [3, 3]
           out_dim: 200
         loss:

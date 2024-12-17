@@ -8,13 +8,14 @@ from data_loaders.base_data_loader import BaseDataLoader
 
 
 class ImageNetDataLoader(BaseDataLoader):
-    def __init__(self, data_loader_cfg) -> None:
+    def __init__(self, data_loader_cfg, device="cpu") -> None:
         super().__init__()
         self.train_data = None
         self.validation_data = None
         self.test_data = None
         self.data_df = None
         self.cfg = data_loader_cfg.image
+        self.device = device
         assert self.cfg.enabled == True
 
     def load_meta_data(self):
@@ -46,8 +47,9 @@ class ImageNetDataLoader(BaseDataLoader):
     def load_data(self, raw_input_path):
         "Loads Images using PIL and returns a tensor"
         image = Image.open(raw_input_path)
+        image = image.convert("RGB") if image.mode == "L" else image
         image_tensor = pil_to_tensor(image).float() / 255.0
-        return image_tensor
+        return image_tensor.to(self.device)
 
     def split(self):
         if self.data_df is None:
@@ -68,7 +70,7 @@ class ImageNetDataLoader(BaseDataLoader):
             K.RandomAffine(360, [0.1, 0.1], [0.7, 1.2], [30.0, 50.0], p=1.0),
         )
         out_tensors = aug(image_batch)
-        return out_tensors
+        return out_tensors.to(self.device)
 
     def get_batch(self, in_df: pl.DataFrame, batch_idx):
         "Takes a Data Frame, loads image data using PIL, and return tensor with batch_size images"
@@ -78,13 +80,13 @@ class ImageNetDataLoader(BaseDataLoader):
         for image_name, path, label, _ in batch_df.iter_rows():
             image = self.load_data(path + "/" + image_name)
             images.append(image)
-            labels.append(torch.tensor(label))
+            labels.append(torch.tensor(label, dtype=torch.float32))
         batch_images_tensor = (
             self.preprocess(torch.stack(images))
             if self.cfg.preprocess
-            else torch.stack(images)
+            else torch.stack(images).to(self.device)
         )
-        batch_labels_tensor = torch.stack(labels)
+        batch_labels_tensor = torch.stack(labels).to(self.device)
         return batch_images_tensor, batch_labels_tensor
 
     def get_labels(self):
