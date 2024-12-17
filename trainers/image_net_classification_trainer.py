@@ -43,17 +43,26 @@ class ImageNetClassificationTrainer(BaseTrainer):
 
     def train(self):
         epochs = self.cfg.train.epochs
-        running_loss = 0.0
+
         loss_criterion = self.criterion(**self.loss_cfg)
         num_iterations = len(self.train_data) // self.batch_size
         for i in range(epochs):
-            curr_batch_idx = 0
+            prev_batch_idx = 0
+            running_loss = 0.0
             for it in range(num_iterations):
-                batch_idx = curr_batch_idx + self.batch_size
+                curr_batch_idx = prev_batch_idx + self.batch_size
                 batch_images, batch_labels = self.image_net_data_loader.get_batch(
-                    self.train_data, batch_idx=batch_idx
+                    self.train_data, prev_batch_idx, curr_batch_idx
                 )
-                self.train_one_step(batch_images, batch_labels, loss_criterion)
+                step_loss = self.train_one_step(
+                    batch_images, batch_labels, loss_criterion
+                )
+                # print(f"Loss at step {it} is: { step_loss:.4f}")
+                running_loss += step_loss
+                prev_batch_idx = curr_batch_idx
+
+            avg_epoch_loss = running_loss / num_iterations
+            print(f"Average loss for epoch {i} is: {avg_epoch_loss:.4f}")
 
     def train_one_step(
         self, batch_images: torch.tensor, batch_labels: torch.tensor, criterion
@@ -63,6 +72,8 @@ class ImageNetClassificationTrainer(BaseTrainer):
         loss = criterion(out, batch_labels)
         loss.backward()
         self.optimizer.step()
+        self.optimizer.zero_grad()
+        return loss
 
     def metrics(self) -> Dict:
         return {

@@ -72,9 +72,9 @@ class ImageNetDataLoader(BaseDataLoader):
         out_tensors = aug(image_batch)
         return out_tensors.to(self.device)
 
-    def get_batch(self, in_df: pl.DataFrame, batch_idx):
+    def get_batch(self, in_df: pl.DataFrame, batch_idx1, batch_idx2):
         "Takes a Data Frame, loads image data using PIL, and return tensor with batch_size images"
-        batch_df = in_df[:batch_idx]
+        batch_df = in_df[batch_idx1:batch_idx2]
         images = []
         labels = []
         for image_name, path, label, _ in batch_df.iter_rows():
